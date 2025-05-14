@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,7 +11,6 @@ export default function Page() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [page, setPage] = useState<'record' | 'analysis' | 'history'>('record');
   const [history, setHistory] = useState<RecordType[]>([]);
-  // ✅ 修正版：defaultOptionsで初期化 → useEffectでlocalStorage読み込み
   const [options, setOptions] = useState(defaultOptions);
 
   useEffect(() => {
@@ -43,8 +41,10 @@ export default function Page() {
     }
   };
 
+  // ✅ 80%サイズに
   const buttonStyle = {
-    padding: "0.5rem 1.2rem",
+    padding: "0.4rem 1rem",
+    fontSize: "0.9rem",
     boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
     borderRadius: "16px",
     backgroundColor: theme === 'light' ? '#fff' : '#555',
@@ -80,17 +80,10 @@ export default function Page() {
         />
       )}
       {page === 'analysis' && (
-        <AnalysisScreen
-          history={history}
-          theme={theme}
-        />
+        <AnalysisScreen history={history} theme={theme} />
       )}
       {page === 'history' && (
-        <HistoryScreen
-          history={history}
-          theme={theme}
-          buttonStyle={buttonStyle}
-        />
+        <HistoryScreen history={history} theme={theme} buttonStyle={buttonStyle} />
       )}
     </main>
   );

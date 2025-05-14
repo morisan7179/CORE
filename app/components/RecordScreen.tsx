@@ -1,4 +1,3 @@
-// components/RecordScreen.tsx
 "use client";
 
 import { useState } from "react";
@@ -33,7 +32,8 @@ export default function RecordScreen({ theme, setTheme, addRecord, buttonStyle, 
     if (typeof window !== "undefined") localStorage.setItem("options_v1", JSON.stringify(updated));
     setNewWord("");
   };
-const handleDeleteWord = (listName: string, word: string) => {
+
+  const handleDeleteWord = (listName: string, word: string) => {
     const updated = { 
         ...options, 
         [listName]: (options as any)[listName].filter((w: string) => w !== word) 
@@ -42,8 +42,7 @@ const handleDeleteWord = (listName: string, word: string) => {
     if (typeof window !== "undefined") {
         localStorage.setItem("options_v1", JSON.stringify(updated));
     }
-};
-
+  };
 
   const cardStyle = {
     backgroundColor: theme === 'light' ? '#fff' : '#2c2c2c',
@@ -53,13 +52,15 @@ const handleDeleteWord = (listName: string, word: string) => {
     marginBottom: '1.5rem'
   };
 
+  // ✅ ボタンを80%サイズ
   const choiceButton = (value: string, selected: string, setSelected: any, listName: string) => {
     let timer: NodeJS.Timeout;
     return (
       <button
         key={value}
         style={{
-          padding: "0.5rem 0.75rem",
+          padding: "0.15rem 0.6rem",
+          fontSize: "0.8rem",
           margin: "0.25rem",
           border: selected === value ? "2px solid #007bff" : "1px solid #ccc",
           borderRadius: "20px",
@@ -115,14 +116,11 @@ const handleDeleteWord = (listName: string, word: string) => {
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
         <button
           style={{
-            padding: "0.4rem 0.8rem",
-            fontSize: "0.9rem",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-            borderRadius: "9999px",
-            backgroundColor: theme === 'light' ? '#fff' : '#555',
-            color: theme === 'light' ? '#333' : '#eee',
-            cursor: "pointer",
-            border: "1px solid #ccc"
+            ...buttonStyle,
+            padding: "0.3rem 0.8rem",
+            fontSize: "0.85rem",
+            border: "1px solid #ccc",
+            borderRadius: "9999px"
           }}
           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
         >
@@ -134,17 +132,26 @@ const handleDeleteWord = (listName: string, word: string) => {
         <h2>📥 単語追加</h2>
         <select value={targetList} onChange={e => setTargetList(e.target.value as any)}>
           <option value="who">誰と</option>
-          <option value="what">何をした</option>
-          <option value="happened">何があった</option>
+          <option value="what">何をしていた</option>
+         
           <option value="feeling">感情単語</option>
         </select>
         <input type="text" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="追加単語" />
-        <button onClick={handleAddWord}>追加</button>
+        <button onClick={handleAddWord} style={{ ...buttonStyle, fontSize: "0.85rem", padding: "0.3rem 0.8rem" }}>追加</button>
       </div>
 
       <div style={cardStyle}><p>👥 誰と</p>{options.who.map(option => choiceButton(option, who, setWho, 'who'))}</div>
-      <div style={cardStyle}><p>🎯 何をした</p>{options.what.map(option => choiceButton(option, what, setWhat, 'what'))}</div>
-      <div style={cardStyle}><p>📋 何があった</p>{options.happened.map(option => choiceButton(option, happened, setHappened, 'happened'))}</div>
+      <div style={cardStyle}><p>🎯 何をしていた</p>{options.what.map(option => choiceButton(option, what, setWhat, 'what'))}</div>
+      <div style={cardStyle}>
+  <p>📋 何があった（自由記入）</p>
+  <textarea
+    value={happened}
+    onChange={e => setHappened(e.target.value)}
+    placeholder="出来事を自由に記入してください"
+    style={{ width: "100%", minHeight: "80px" }}
+  />
+</div>
+
       <div style={cardStyle}><p>💡 感情単語</p>{options.feeling.map(option => choiceButton(option, feelingWord, setFeelingWord, 'feeling'))}</div>
 
       <div style={cardStyle}>
@@ -164,14 +171,11 @@ const handleDeleteWord = (listName: string, word: string) => {
           addRecord({ who, what, happened, feelingWord, feelingScore, memo });
           setWho(""); setWhat(""); setHappened(""); setFeelingWord(""); setFeelingScore(3); setMemo("");
         }} style={{
-          padding: "0.5rem 1.2rem",
-          fontSize: "1rem",
-          boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
-          borderRadius: "9999px",
-          backgroundColor: theme === 'light' ? '#fff' : '#555',
-          color: theme === 'light' ? '#333' : '#eee',
-          cursor: "pointer",
-          border: "1px solid #aaa"
+          ...buttonStyle,
+          fontSize: "0.85rem",
+          padding: "0.4rem 1rem",
+          border: "1px solid #aaa",
+          borderRadius: "9999px"
         }}>
           記録する
         </button>
