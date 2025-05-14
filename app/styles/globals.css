@@ -1,0 +1,26 @@
+/* styles/globals.css */
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Inter', 'Roboto', sans-serif;
+  background-color: #f3f4f6;
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 0.9rem;
+  }
+
+  button {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  input[type="text"],
+  select,
+  textarea {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+}
