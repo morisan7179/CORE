@@ -5,7 +5,7 @@ import type { RecordType } from "../types/types";
 import { analyzeWithAI } from "../untils/openai";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { positiveWords, negativeWords } from "../constants/data";
-import { TagCloud } from "react-tagcloud";
+import { TagCloud } from 'react-tagcloud';
 
 type Props = {
   history: RecordType[];
