@@ -6,8 +6,10 @@ import { analyzeWithAI } from "../untils/openai";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import dynamic from 'next/dynamic';
 import { positiveWords, negativeWords } from "../constants/data";
-// @ts-ignore
-const TagCloud = dynamic(() => import('react-tagcloud'), { ssr: false });
+
+// ✅ TagCloud を safe dynamic import（Vercel対策）
+const TagCloudComponent = dynamic(() => import('react-tagcloud').then(mod => ({ default: mod.TagCloud })), { ssr: false });
+
 type Props = {
   history: RecordType[];
   theme: 'light' | 'dark';
@@ -32,22 +34,16 @@ export default function AnalysisScreen({ history, theme }: Props) {
   const keywordCount = new Map<string, number>();
 
   history.forEach((record) => {
-    // 感情カテゴリ
     let category = "その他";
     if (positiveWords.includes(record.feelingWord)) category = "ポジティブ";
     if (negativeWords.includes(record.feelingWord)) category = "ネガティブ";
-    feelingCategoryCount.set(
-      category,
-      (feelingCategoryCount.get(category) || 0) + record.feelingScore
-    );
+    feelingCategoryCount.set(category, (feelingCategoryCount.get(category) || 0) + record.feelingScore);
 
-    // 単語出現頻度
     whoCount.set(record.who, (whoCount.get(record.who) || 0) + 1);
     whatCount.set(record.what, (whatCount.get(record.what) || 0) + 1);
     happenedCount.set(record.happened, (happenedCount.get(record.happened) || 0) + 1);
     feelingWordCount.set(record.feelingWord, (feelingWordCount.get(record.feelingWord) || 0) + 1);
 
-    // キーワード頻度 × 感情強度
     [record.who, record.what, record.happened, record.feelingWord].forEach(word => {
       if (!word) return;
       const score = record.feelingScore || 1;
@@ -103,10 +99,7 @@ ${topWords}
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
-              data={Array.from(feelingCategoryCount.entries()).map(([name, value]) => ({
-                name,
-                value
-              }))}
+              data={Array.from(feelingCategoryCount.entries()).map(([name, value]) => ({ name, value }))}
               dataKey="value"
               nameKey="name"
               cx="50%"
@@ -159,7 +152,7 @@ ${topWords}
 
       <div style={cardStyle}>
         <h3>🌟 キーワードタグクラウド</h3>
-        <TagCloud
+        <TagCloudComponent
           minSize={12}
           maxSize={40}
           tags={Array.from(keywordCount.entries()).map(([value, count]) => ({
