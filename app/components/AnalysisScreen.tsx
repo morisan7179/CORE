@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import type { RecordType } from "../types/types";
 import { analyzeWithAI } from "../untils/openai";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import dynamic from 'next/dynamic';
 import { positiveWords, negativeWords } from "../constants/data";
-import { TagCloud } from "react-tagcloud";
-
+// @ts-ignore
+const TagCloud = dynamic(() => import('react-tagcloud'), { ssr: false });
 type Props = {
   history: RecordType[];
   theme: 'light' | 'dark';
