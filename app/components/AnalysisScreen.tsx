@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import type { RecordType } from "../types/types";
 import { analyzeWithAI } from "../untils/openai";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import dynamic from 'next/dynamic';
 import { positiveWords, negativeWords } from "../constants/data";
 
-// ✅ TagCloud を safe dynamic import（Vercel対策）
-const TagCloudComponent = dynamic(() => import('react-tagcloud').then(mod => ({ default: mod.TagCloud })), { ssr: false });
+
 
 type Props = {
   history: RecordType[];
@@ -150,18 +148,7 @@ ${topWords}
         </ol>
       </div>
 
-      <div style={cardStyle}>
-        <h3>🌟 キーワードタグクラウド</h3>
-        <TagCloudComponent
-          minSize={12}
-          maxSize={40}
-          tags={Array.from(keywordCount.entries()).map(([value, count]) => ({
-            value,
-            count
-          }))}
-          onClick={tag => console.log(`'${tag.value}' がクリックされました`)}
-        />
-      </div>
+      
     </div>
   );
 }
