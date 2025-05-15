@@ -53,63 +53,86 @@ export default function RecordScreen({ theme, setTheme, addRecord, buttonStyle, 
   };
 
   // ✅ ボタンを80%サイズ
-  const choiceButton = (value: string, selected: string, setSelected: any, listName: string) => {
-    let timer: NodeJS.Timeout;
-    return (
-      <button
-        key={value}
-        style={{
-          padding: "0.15rem 0.6rem",
-          fontSize: "0.8rem",
-          margin: "0.25rem",
-          border: selected === value ? "2px solid #007bff" : "1px solid #ccc",
-          borderRadius: "20px",
-          backgroundColor: selected === value ? "#007bff" : (theme === 'light' ? '#fff' : '#555'),
-          color: selected === value ? "#fff" : (theme === 'light' ? '#333' : '#eee'),
-          cursor: "pointer",
-          position: "relative"
-        }}
-        onMouseDown={() => {
-          timer = setTimeout(() => setLongPressWord(value), 500);
-        }}
-        onMouseUp={() => clearTimeout(timer)}
-        onMouseLeave={() => clearTimeout(timer)}
-        onClick={() => {
-          if (longPressWord === value) return;
-          setSelected(value);
-          setLongPressWord(null);
-        }}
-      >
-        {value}
-        {longPressWord === value && (
-          <span
-            style={{
-              position: "absolute",
-              top: "-8px",
-              right: "-8px",
-              backgroundColor: "red",
-              color: "white",
-              borderRadius: "50%",
-              width: "20px",
-              height: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              cursor: "pointer"
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteWord(listName, value);
-              setLongPressWord(null);
-            }}
-          >
-            🗑️
-          </span>
-        )}
-      </button>
-    );
-  };
+  const choiceButton = (
+  value: string,
+  selected: string,
+  setSelected: (value: string) => void,
+  listName: string
+) => {
+  let timer: NodeJS.Timeout;
+
+  return (
+    <button
+      key={value}
+      style={{
+        padding: "0.15rem 0.5rem",
+        fontSize: "0.8rem",
+        margin: "0.2rem",
+        border: selected === value ? "2px solid #007bff" : "1px solid #ccc",
+        borderRadius: "20px",
+        backgroundColor:
+          selected === value
+            ? "#007bff"
+            : theme === "light"
+            ? "#fff"
+            : "#555",
+        color:
+          selected === value
+            ? "#fff"
+            : theme === "light"
+            ? "#333"
+            : "#eee",
+        cursor: "pointer",
+        position: "relative",
+      }}
+      // 💻 PC用
+      onMouseDown={() => {
+        timer = setTimeout(() => setLongPressWord(value), 500);
+      }}
+      onMouseUp={() => clearTimeout(timer)}
+      onMouseLeave={() => clearTimeout(timer)}
+      // 📱 スマホ用
+      onTouchStart={() => {
+        timer = setTimeout(() => setLongPressWord(value), 500);
+      }}
+      onTouchEnd={() => clearTimeout(timer)}
+      onClick={() => {
+        if (longPressWord === value) return; // 長押し中は選択しない
+        setSelected(value);
+        setLongPressWord(null);
+      }}
+    >
+      {value}
+      {longPressWord === value && (
+        <span
+          style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-8px",
+            backgroundColor: "red",
+            color: "white",
+            borderRadius: "50%",
+            width: "20px",
+            height: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "12px",
+            cursor: "pointer",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteWord(listName, value);
+            setLongPressWord(null);
+          }}
+        >
+          🗑️
+        </span>
+      )}
+    </button>
+  );
+};
+
 
   return (
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
@@ -137,7 +160,8 @@ export default function RecordScreen({ theme, setTheme, addRecord, buttonStyle, 
           <option value="feeling">感情単語</option>
         </select>
         <input type="text" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="追加単語" />
-        <button onClick={handleAddWord} style={{ ...buttonStyle, fontSize: "0.85rem", padding: "0.3rem 0.8rem" }}>追加</button>
+        <button onClick={handleAddWord} style={{ ...buttonStyle, fontSize: "0.85rem", padding: "0.3rem 0.8rem",
+    border: "1px solid #ccc" }}>追加</button>
       </div>
 
       <div style={cardStyle}><p>👥 誰と</p>{options.who.map(option => choiceButton(option, who, setWho, 'who'))}</div>

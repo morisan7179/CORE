@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import type { RecordType } from "../types/types";
 import { analyzeWithAI } from "../untils/openai";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { positiveWords, negativeWords } from "../constants/data";
+import { TagCloud } from "react-tagcloud";
 
 type Props = {
   history: RecordType[];
@@ -19,6 +22,43 @@ export default function AnalysisScreen({ history, theme }: Props) {
     boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
     marginBottom: '1.5rem'
   };
+
+  const feelingCategoryCount = new Map<string, number>();
+  const whoCount = new Map<string, number>();
+  const whatCount = new Map<string, number>();
+  const happenedCount = new Map<string, number>();
+  const feelingWordCount = new Map<string, number>();
+  const keywordCount = new Map<string, number>();
+
+  history.forEach((record) => {
+    // 感情カテゴリ
+    let category = "その他";
+    if (positiveWords.includes(record.feelingWord)) category = "ポジティブ";
+    if (negativeWords.includes(record.feelingWord)) category = "ネガティブ";
+    feelingCategoryCount.set(
+      category,
+      (feelingCategoryCount.get(category) || 0) + record.feelingScore
+    );
+
+    // 単語出現頻度
+    whoCount.set(record.who, (whoCount.get(record.who) || 0) + 1);
+    whatCount.set(record.what, (whatCount.get(record.what) || 0) + 1);
+    happenedCount.set(record.happened, (happenedCount.get(record.happened) || 0) + 1);
+    feelingWordCount.set(record.feelingWord, (feelingWordCount.get(record.feelingWord) || 0) + 1);
+
+    // キーワード頻度 × 感情強度
+    [record.who, record.what, record.happened, record.feelingWord].forEach(word => {
+      if (!word) return;
+      const score = record.feelingScore || 1;
+      keywordCount.set(word, (keywordCount.get(word) || 0) + score);
+    });
+  });
+
+  const getTop3 = (map: Map<string, number>) =>
+    Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(e => e[0]);
 
   useEffect(() => {
     if (history.length === 0) return;
@@ -58,8 +98,75 @@ ${topWords}
   return (
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
       <div style={cardStyle}>
-        <h3>📝 AIによる総合傾向分析</h3>
+        <h3>🎨 感情ドーナツグラフ</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={Array.from(feelingCategoryCount.entries()).map(([name, value]) => ({
+                name,
+                value
+              }))}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={40}
+              outerRadius={80}
+              fill="#8884d8"
+              label
+            >
+              {Array.from(feelingCategoryCount.keys()).map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={
+                  entry === "ポジティブ" ? "#82ca9d" :
+                  entry === "ネガティブ" ? "#ff7f7f" :
+                  "#d3d3d3"
+                } />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={cardStyle}>
+        <h3>📊 単語統計による傾向分析</h3>
+        <p>
+          あなたは「{getTop3(whoCount).join("」「")}」いるとき、<br />
+          「{getTop3(whatCount).join("」「")}」したとき、<br />
+          「{getTop3(happenedCount).join("」「")}」とき、<br />
+          「{getTop3(feelingWordCount).join("」「")}」と感じる傾向があります。
+        </p>
+      </div>
+
+      <div style={cardStyle}>
+        <h3>🧭 AIによる総合傾向分析</h3>
         <p>{aiResult || "履歴データから分析中です..."}</p>
+      </div>
+
+      <div style={cardStyle}>
+        <h3>📋 キーワードランキング</h3>
+        <ol>
+          {Array.from(keywordCount.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([word, count]) => (
+              <li key={word}>{word}：{count}pt</li>
+          ))}
+        </ol>
+      </div>
+
+      <div style={cardStyle}>
+        <h3>🌟 キーワードタグクラウド</h3>
+        <TagCloud
+          minSize={12}
+          maxSize={40}
+          tags={Array.from(keywordCount.entries()).map(([value, count]) => ({
+            value,
+            count
+          }))}
+          onClick={tag => console.log(`'${tag.value}' がクリックされました`)}
+        />
       </div>
     </div>
   );
